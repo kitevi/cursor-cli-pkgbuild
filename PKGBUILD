@@ -1,7 +1,7 @@
 # Local package recipe for the official Cursor CLI binary archive.
 pkgname=cursor-cli
-_upstream_ver='2026.09.26-dd393fe'
-pkgver=2026.09.26.1.dd393fe
+_upstream_ver='2026.09.28-64d2043'
+pkgver=2026.09.28.1.64d2043
 pkgrel=1
 epoch=1
 pkgdesc='Cursor Agent CLI - AI-powered coding assistant (official binary)'
@@ -14,7 +14,7 @@ options=('!strip')
 source=('LICENSE')
 source_x86_64=("cursor-cli-${_upstream_ver}-x86_64.tar.gz::https://downloads.cursor.com/lab/${_upstream_ver}/linux/x64/agent-cli-package.tar.gz")
 sha256sums=('9f2174c1ec04f0e9038f7d02dce70f2163855d72423f9be45fbbe0c3aa73bd54')
-sha256sums_x86_64=('8085fd120f5c71f4eae7fea26a043718e5644e3071e4fab3220a0e58c51f9593')
+sha256sums_x86_64=('6e4cd936a4866b8a77c50ff51a564460d715772fabc477a01aa0f0455d9559f0')
 
 package() {
   install -d "${pkgdir}/opt/cursor-agent" "${pkgdir}/usr/bin"
