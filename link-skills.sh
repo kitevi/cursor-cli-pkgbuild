@@ -1,42 +1,37 @@
 #!/usr/bin/env bash
 # Fetch listed GitHub skills into ~/.cursor/skills.
 # Clones into /tmp. Writes nothing under $HOME until every SKILL.md is found.
+# After install, removes any ~/.cursor/skills entry not in the current list.
 # Run as your user, not root.
 set -euo pipefail
 
 # GitHub repos cloned once each.
 readonly git_sources=(
-  'https://github.com/dmmulroy/skills'
-  'https://github.com/mattpocock/skills'
-  'https://github.com/emilkowalski/skills'
-  'https://github.com/SentioLabs/pi-nexus'
   'https://github.com/humanlayer/skills'
+  'https://github.com/cursor/plugins'
+  'https://github.com/mattpocock/skills'
+  'https://github.com/celec7/beyond-code'
+  'https://github.com/petekp/claude-code-setup'
+  'https://github.com/emilkowalski/skills'
+  'https://github.com/kitevi/pi-config'
 )
 
 # Paths relative to a cloned repo. Each must contain SKILL.md.
 readonly skills=(
-  'tech-spec'
-  'bro'
   'plugins/show-me/skills/show-me'
-  'skills/productivity/grill-me'
+  'cursor-team-kit/skills/deslop'
+  'pstack/skills/principle-fix-root-causes'
   'skills/productivity/grilling'
-  'skills/engineering/grill-with-docs'
-  'skills/engineering/implement'
-  'skills/engineering/resolving-merge-conflicts'
-  'skills/engineering/domain-modeling'
-  'skills/engineering/tdd'
-  'skills/engineering/prototype'
-  'skills/engineering/diagnosing-bugs'
-  'skills/engineering/code-review'
-  'skills/engineering/codebase-design'
-  'skills/engineering/improve-codebase-architecture'
   'skills/productivity/writing-for-agents'
-  'skills/productivity/teach'
   'skills/productivity/handoff'
+  'skills/code-review'
+  'skills/tdd'
+  'skills/plain'
   'skills/emil-design-eng'
   'skills/review-animations'
-  'skills/animation-vocabulary'
-  'packages/pi-frontend-design/skills/frontend-design'
+  'skills/tech-spec'
+  'skills/test-audit'
+  'skills/wording-pass'
 )
 
 die() {
@@ -73,6 +68,30 @@ find_skill_dir() {
   ((${#matches[@]} != 0)) || die "missing ${rel}/SKILL.md in cloned sources"
   ((${#matches[@]} == 1)) || die "found ${#matches[@]} copies of ${rel}; refusing to guess"
   printf '%s\n' "${matches[0]}"
+}
+
+# Remove ~/.cursor/skills children whose basenames are not in the keep set.
+prune_stale_skills() {
+  local skills_root="${1:?}"
+  shift
+  local -A keep=()
+  local name entry
+  for name in "$@"; do
+    keep["${name}"]=1
+  done
+
+  shopt -s nullglob
+  local -a entries=("${skills_root}"/*)
+  shopt -u nullglob
+
+  for entry in "${entries[@]}"; do
+    name="$(basename -- "${entry}")"
+    [[ -n "${name}" && "${name}" != . && "${name}" != .. ]] || \
+      die "unsafe skill entry: ${entry}"
+    [[ -z "${keep[${name}]:-}" ]] || continue
+    rm -rf -- "${entry}"
+    printf 'Removed stale skill %s\n' "${entry}"
+  done
 }
 
 ((EUID != 0)) || die 'run this as your user, not root'
@@ -113,12 +132,15 @@ for path in "${skills[@]}"; do
   resolved_names+=("${name}")
 done
 
-mkdir -p -- "${HOME}/.cursor/skills"
+skills_root="${HOME}/.cursor/skills"
+mkdir -p -- "${skills_root}"
 for i in "${!resolved_srcs[@]}"; do
-  dest="${HOME}/.cursor/skills/${resolved_names[i]}"
+  dest="${skills_root}/${resolved_names[i]}"
   rm -rf -- "${dest}"
   cp -a -- "${resolved_srcs[i]}" "${dest}"
   printf 'Installed %s -> %s\n' "${resolved_names[i]}" "${dest}"
 done
+
+prune_stale_skills "${skills_root}" "${resolved_names[@]}"
 
 printf 'Restart Cursor / cursor-agent to pick up the skills.\n'

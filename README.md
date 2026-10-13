@@ -40,8 +40,9 @@ succeeds, and it refuses to run as root.
 ./link-skills.sh
 ```
 
-Restart `cursor-agent` afterwards. Re-running fetches again and replaces those
-skill directories.
+Restart `cursor-agent` afterwards. Re-running fetches again, replaces those
+skill directories, and removes any other entries under `~/.cursor/skills/` that
+are no longer listed in the script.
 
 ## Update to Cursor's latest release
 
