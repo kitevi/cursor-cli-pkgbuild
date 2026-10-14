@@ -6,6 +6,10 @@
 set -euo pipefail
 
 # GitHub repos cloned once each.
+# NOTE: do not add personal config repos (e.g. kitevi/pi-config) here.
+# They install and manage their own skills; listing one makes this script
+# copy its skills into ~/.cursor/skills and prune them on later runs,
+# leaving duplicate stale copies. Own repos stay out of this list.
 readonly git_sources=(
   'https://github.com/humanlayer/skills'
   'https://github.com/cursor/plugins'
@@ -13,7 +17,6 @@ readonly git_sources=(
   'https://github.com/celec7/beyond-code'
   'https://github.com/petekp/claude-code-setup'
   'https://github.com/emilkowalski/skills'
-  'https://github.com/kitevi/pi-config'
 )
 
 # Paths relative to a cloned repo. Each must contain SKILL.md.
@@ -29,9 +32,6 @@ readonly skills=(
   'skills/plain'
   'skills/emil-design-eng'
   'skills/review-animations'
-  'skills/tech-spec'
-  'skills/test-audit'
-  'skills/wording-pass'
 )
 
 die() {
